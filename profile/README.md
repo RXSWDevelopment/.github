@@ -7,7 +7,7 @@
 
 <code>▁█▂▇▃▆▄▅▄▄▄▄▄▄▄▄▄▄</code>
 
-| | |
+| Area | What we build |
 |---|---|
 | **Data extraction** | Routines and SDKs that collect, normalize and verify data from the web. |
 | **Platforms** | Products and internal tools built on top of that data. |

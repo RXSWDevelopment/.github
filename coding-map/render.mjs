@@ -207,12 +207,14 @@ async function main(){
     .map(([login, m]) => ({login, map: m, total: [...m.values()].reduce((a, b) => a + b, 0)}))
     .filter(a => a.total > 0)
     .sort((a, b) => b.total - a.total);
+  const allowed = (process.env.MAP_AUTHORS || "").split(",").map(s => s.trim()).filter(Boolean);
+  const displayed = allowed.length ? authors.filter(a => allowed.includes(a.login)) : authors;
   const subtitle = fmt(orgTotal) + " commits · last 365 days · default branches · UTC days" + (errors ? " · " + errors + " repos unread" : "");
   const entries = [{light: "coding-map-light.svg", dark: "coding-map.svg", alt: "RXSW coding map — last 365 days", caption: "RXSW · " + subtitle}];
   const written = new Set(["coding-map.svg", "coding-map-light.svg"]);
   writeFileSync("profile/coding-map.svg", renderSVG(ORG, subtitle, orgDays, orgTotal, true));
   writeFileSync("profile/coding-map-light.svg", renderSVG(ORG, subtitle, orgDays, orgTotal, false));
-  for(const a of authors){
+  for(const a of displayed){
     const base = "coding-map-" + a.login.replace(/[^A-Za-z0-9-]/g, "");
     writeFileSync("profile/" + base + ".svg", renderSVG("@" + a.login, fmt(a.total) + " commits · last 365 days", a.map, a.total, true));
     writeFileSync("profile/" + base + "-light.svg", renderSVG("@" + a.login, fmt(a.total) + " commits · last 365 days", a.map, a.total, false));
@@ -230,7 +232,7 @@ async function main(){
   }
   patchReadme(entries);
   console.log("org total: " + fmt(orgTotal) + " commits by " + authors.length + " accounts in " + ((Date.now() - t0) / 1000).toFixed(1) + "s");
-  for(const a of authors) console.log("  @" + a.login + ": " + fmt(a.total));
+  for(const a of authors) console.log("  @" + a.login + ": " + fmt(a.total) + (displayed.includes(a) ? "" : " (hidden)"));
   if(errors) console.log(errors + " repositories failed (check token scopes). Exit code forced to 1.");
   process.exitCode = errors ? 1 : 0;
 }

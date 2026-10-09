@@ -21,6 +21,7 @@ jobs:
         env:
           CODING_MAP_TOKEN: ${{ secrets.CODING_MAP_TOKEN }}
           MAP_ORG: RXSWDevelopment
+          MAP_AUTHORS: BraitoRX
       - name: Commit
         run: |
           git config user.name "coding-map-bot"

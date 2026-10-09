@@ -27,13 +27,13 @@
   <source media="(prefers-color-scheme: dark)" srcset="./coding-map.svg">
   <img alt="RXSW coding map — last 365 days" src="./coding-map-light.svg">
 </picture>
-<sub>RXSW · 3,520 commits · last 365 days · default branches · UTC days</sub>
+<sub>RXSW · 3,543 commits · last 365 days · default branches · UTC days</sub>
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./coding-map-BraitoRX.svg">
-  <img alt="@BraitoRX coding map — 2,923 commits" src="./coding-map-BraitoRX-light.svg">
+  <img alt="@BraitoRX coding map — 3,377 commits" src="./coding-map-BraitoRX-light.svg">
 </picture>
-<sub>@BraitoRX · 2,923 commits · last 365 days</sub>
+<sub>@BraitoRX · 3,377 commits · last 365 days</sub>
 <!-- coding-map:end -->
 
 - [coding-map.html](https://rxswdevelopment.github.io/.github/coding-map.html) — interactive dashboard: per-author heatmap, per-repository detail, streaks and JSON export.

@@ -20,4 +20,8 @@
 `03` **Sober** — contrast, not decoration.<br>
 `04` **Verifiable** — show the work: logs, versions, sources.
 
+### Members
+
+- **Coding map** — commit graph across RXSW repositories, one heatmap per account. <a href="https://rxswdevelopment.github.io/.github/coding-map.html">coding-map.html</a> (enable Settings &rarr; Pages, or clone this repo and open the file). Private repositories need a token with read access.
+
 <sub><code>▁█▂▇▃▆▄▅▄▄▄▄▄▄▄▄▄▄</code> &nbsp;Signal from the noise.</sub>

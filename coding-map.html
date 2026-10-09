@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>RXSW Coding Map</title>
+<style>
+  :root{
+    --bg:#0d1117; --panel:#161b22; --border:#30363d; --border-soft:#21262d;
+    --text:#e6edf3; --muted:#7d8590; --accent:#1f6feb; --accent-soft:#388bfd66;
+    --l0:#161b22; --l1:#0e4429; --l2:#006d32; --l3:#26a641; --l4:#39d353;
+    --cell:11px; --gap:3px; --pitch:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1120px;margin:0 auto;padding:24px 20px 64px}
+  a{color:#4493f8;text-decoration:none}
+  a:hover{text-decoration:underline}
+  h1{font-size:20px;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:16px;margin-top:16px}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .muted{color:var(--muted)}
+  input,select,button{font:inherit}
+  input[type=password],input[type=text]{
+    background:#0d1117;border:1px solid var(--border);border-radius:6px;color:var(--text);
+    padding:7px 10px;min-width:0;
+  }
+  input[type=password]{width:280px}
+  input[type=text]{width:150px}
+  input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
+  button{
+    background:#21262d;border:1px solid var(--border);border-radius:6px;color:var(--text);
+    padding:7px 14px;cursor:pointer;
+  }
+  button:hover{background:#30363d}
+  button.primary{background:#238636;border-color:#2ea043}
+  button.primary:hover{background:#2ea043}
+  button.ghost{background:transparent}
+  .tab{
+    background:#0d1117;border:1px solid var(--border);border-radius:6px;color:var(--muted);
+    padding:7px 16px;cursor:pointer;font-weight:600;
+  }
+  .tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+  #headline{font-size:16px;font-weight:600}
+  #yearTabs{margin-left:auto}
+  .graphbox{margin-top:14px;overflow-x:auto;position:relative}
+  #tooltip{
+    position:fixed;display:none;z-index:30;pointer-events:none;background:#1c2128;
+    border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:12px;
+    padding:8px 10px;max-width:280px;box-shadow:0 8px 24px #00000066;
+  }
+  .legend{display:flex;align-items:center;gap:4px;color:var(--muted);font-size:12px;margin-top:6px}
+  .sw{width:var(--cell);height:var(--cell);border-radius:2px;display:inline-block}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-top:8px}
+  .stat{background:#0d1117;border:1px solid var(--border-soft);border-radius:6px;padding:10px 12px}
+  .stat .v{font-size:20px;font-weight:600}
+  .stat .k{color:var(--muted);font-size:12px}
+  .repos{width:100%;border-collapse:collapse;margin-top:10px}
+  .repos th{color:var(--muted);font-size:12px;text-align:left;padding:6px 10px;border-bottom:1px solid var(--border)}
+  .repos td{padding:8px 10px;border-bottom:1px solid var(--border-soft);vertical-align:middle}
+  .bar{height:8px;border-radius:4px;background:var(--l4);min-width:2px}
+  .tag{font-size:11px;border:1px solid var(--border);border-radius:20px;padding:1px 8px;color:var(--muted);margin-left:6px}
+  #progress{display:none;margin:10px 0 0}
+  #progress .track{height:6px;background:#0d1117;border:1px solid var(--border);border-radius:3px;overflow:hidden}
+  #progress .fill{height:100%;width:0;background:var(--accent);transition:width .2s}
+  #status{display:none;margin-top:10px;padding:10px 12px;border:1px solid var(--border);border-radius:6px;background:#0d1117}
+  #status.err{border-color:#f8514955;color:#ffa198}
+  #status.ok{border-color:var(--border)}
+  details{color:var(--muted);font-size:13px}
+  details summary{cursor:pointer}
+  details li{margin:6px 0}
+  .months{display:flex;align-items:flex-end;gap:6px;height:80px;margin-top:18px}
+  .month{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+  .month .b{width:100%;max-width:46px;background:var(--l2);border-radius:3px 3px 0 0}
+  .month .lb{font-size:11px;color:var(--muted)}
+  .topline{margin-top:10px}
+  .who{border:1px solid var(--border);border-radius:8px;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;margin-top:12px}
+  .who img{width:22px;height:22px;border-radius:50%}
+  code{background:#0d1117;border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>RXSW Coding Map</h1>
+  <div class="sub">Commit activity across the organization. Token stays in your browser. Nothing is sent anywhere except api.github.com.</div>
+
+  <div class="card">
+    <div class="row">
+      <input type="password" id="token" placeholder="GitHub token (PAT)">
+      <button class="primary" id="saveToken" type="button">Save token</button>
+      <button class="ghost" id="forget" type="button">Forget</button>
+      <input type="text" id="org" spellcheck="false" title="Organization">
+      <input type="text" id="author" spellcheck="false" placeholder="author login" title="Author login. Blank = me.">
+      <label class="muted"><input type="checkbox" id="forks"> include forks</label>
+      <button id="load" type="button">Build map</button>
+      <button id="cancel" type="button" hidden>Cancel</button>
+    </div>
+    <div class="row topline" id="publicNote">
+      <span class="muted">No token yet: this shows public RXSW repositories only. To include the ~50 private ones, paste a token that can read them.</span>
+    </div>
+    <div class="row topline" id="whoRow" style="display:none">
+      <span class="who">
+        <img id="whoAvatar" alt="">
+        <span id="whoText"></span>
+      </span>
+    </div>
+    <div id="progress"><div class="track"><div class="fill" id="fill"></div></div><div class="sub" id="progressText" style="margin-top:6px"></div></div>
+    <div id="status"></div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <span id="headline">Loading</span>
+      <div class="row" id="yearTabs" style="margin-left:auto"></div>
+    </div>
+    <div class="graphbox"><div id="graph"></div></div>
+    <div class="row" style="justify-content:flex-end">
+      <div class="legend">Less
+        <span class="sw" style="background:var(--l0)"></span><span class="sw" style="background:var(--l1)"></span><span class="sw" style="background:var(--l2)"></span><span class="sw" style="background:var(--l3)"></span><span class="sw" style="background:var(--l4)"></span>
+      More</div>
+    </div>
+    <div class="months" id="months"></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span style="font-weight:600">Activity overview</span></div>
+    <div class="stats" id="stats"></div>
+    <div id="contrib"></div>
+  </div>
+
+  <div class="card">
+    <div class="row"><span style="font-weight:600">By repository</span><span class="muted" style="margin-left:auto" id="repoCount"></span></div>
+    <table class="repos"><thead><tr><th>Repository</th><th style="width:34%">Commits</th><th style="width:70px">Share</th></tr></thead><tbody id="repoRows"></tbody></table>
+  </div>
+
+  <div class="card">
+    <details open>
+      <summary>How this counts</summary>
+      <ul>
+        <li>Counts commits <strong>authored by the selected account</strong> on the <strong>default branch</strong> of RXSW repositories, mirroring how GitHub builds contribution graphs.</li>
+        <li>Commit day = the commit's <code>committedDate</code> (UTC date). Pushes, merges and rebases can shift a commit between days compared to your profile view.</li>
+        <li>It measures commits only. Issues, reviews and pull requests are not counted. If you are 99% commits, the totals will sit close to your profile graph.</li>
+        <li>Token needs read access to the org repositories. Classic PAT with the <code>repo</code> scope, or a fine-grained token with read-only <em>Contents</em> + <em>Metadata</em> for RXSWDevelopment. <a href="https://github.com/settings/tokens/new?scopes=repo&description=RXSW%20Coding%20Map" target="_blank" rel="noopener">Create a classic token</a>.</li>
+      </ul>
+    </details>
+    <div class="row topline">
+      <button id="export" type="button">Export JSON</button>
+      <span class="muted" id="genNote"></span>
+    </div>
+  </div>
+</div>
+<div id="tooltip"></div>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const LS_KEY="rxsw.map.token";
+const state={token:"",org:"RXSWDevelopment",author:"",year:null,years:[],includeForks:false,
+  reposCache:null,reposCacheKey:"",days:null,perRepo:null,repos:[],authorId:"",authorLogin:"",
+  viewer:null,cache:new Map(),abort:null,busy:false};
+
+const el={token:$("#token"),org:$("#org"),author:$("#author"),forks:$("#forks"),load:$("#load"),
+  cancel:$("#cancel"),progress:$("#progress"),fill:$("#fill"),progressText:$("#progressText"),
+  status:$("#status"),headline:$("#headline"),yearTabs:$("#yearTabs"),graph:$("#graph"),
+  stats:$("#stats"),contrib:$("#contrib"),repoRows:$("#repoRows"),repoCount:$("#repoCount"),
+  tooltip:$("#tooltip"),months:$("#months"),whoRow:$("#whoRow"),whoText:$("#whoText"),
+  whoAvatar:$("#whoAvatar"),publicNote:$("#publicNote"),genNote:$("#genNote"),exportBtn:$("#export"),
+  saveToken:$("#saveToken")};
+
+function setStatus(msg,cls){
+  el.status.textContent=msg||"";
+  el.status.className=strState(msg,cls);
+  el.status.style.display=msg?"block":"none";
+}
+function strState(msg,cls){return msg?(cls||"err"):"";}
+function fmt(n){return n.toLocaleString("en-US");}
+
+async function rest(path,params){
+  const url="https://api.github.com"+path+(params?"?"+new URLSearchParams(params):"");
+  const headers={Accept:"application/vnd.github+json"};
+  if(state.token){headers.Authorization="Bearer "+state.token;headers["X-GitHub-Api-Version"]="2022-11-28";}
+  const res=await fetch(url,{headers,signal:state.abort.signal});
+  if(res.status===401)throw new Error("Token rejected (401). Check the token and its SSO authorization for the organization.");
+  if(res.status===403&&res.headers.get("x-ratelimit-remaining")==="0")throw new Error("GitHub rate limit reached. Try again in a few minutes.");
+  if(res.status===404)throw new Error("Not found (404): "+path+". The token may lack access to the organization.");
+  if(!res.ok)throw new Error("GitHub API error "+res.status+" on "+path);
+  return res;
+}
+async function restJSON(path,params){const r=await rest(path,params);return r.json();}
+async function restPages(path,params,limit){
+  const out=[];let page=1;
+  while(true){
+    const r=await rest(path,Object.assign({},params,{per_page:100,page}));
+    const chunk=await r.json();out.push(...chunk);
+    const link=r.headers.get("link")||"";
+    if(state.abort.signal.aborted)break;
+    if(!/rel="next"/.test(link)||page>=limit)break;
+    page++;
+  }
+  return out;
+}
+async function gql(query,variables){
+  const res=await fetch("https://api.github.com/graphql",{
+    method:"POST",
+    headers:{Authorization:"Bearer "+state.token,"Content-Type":"application/json"},
+    body:JSON.stringify({query,variables}),
+    signal:state.abort.signal
+  });
+  if(res.status===401)throw new Error("Token rejected (401). Check the token and its SSO authorization for the organization.");
+  if(res.status===403&&res.headers.get("x-ratelimit-remaining")==="0")throw new Error("GitHub GraphQL rate limit reached. Try again in a few minutes.");
+  if(!res.ok)throw new Error("GitHub GraphQL error "+res.status);
+  const body=await res.json();
+  if(body.errors&&body.errors.length)throw new Error("GraphQL: "+body.errors[0].message);
+  return body.data;
+}
+
+async function loadViewer(){
+  if(!state.token){state.viewer=null;return;}
+  state.viewer=await restJSON("/user");
+}
+async function resolveAuthor(){
+  const login=(el.author.value||"").trim();
+  if(!login){
+    if(!state.viewer)await loadViewer();
+    state.author=state.viewer.login;state.authorLogin=state.viewer.login;state.authorId=state.viewer.node_id;
+    el.author.value=state.viewer.login;
+    return;
+  }
+  if(login===state.authorLogin&&state.authorId)return;
+  const u=await restJSON("/users/"+encodeURIComponent(login));
+  if(!u.node_id)throw new Error("Unknown author login: "+login);
+  state.author=u.login;state.authorLogin=u.login;state.authorId=u.node_id;
+}
+async function fetchRepos(){
+  const key=state.org+"|"+state.includeForks+"|"+!!state.token;
+  if(state.reposCacheKey===key&&state.reposCache)return state.reposCache;
+  const list=await restPages("/orgs/"+encodeURIComponent(state.org)+"/repos",
+    {type:"all",sort:"pushed",direction:"desc"},10);
+  const repos=list.map(r=>({name:r.name,url:r.html_url,fork:!!r.fork,archived:!!r.archived,
+    pushedAt:r.pushed_at,createdAt:r.created_at,language:r.language}));
+  const filtered=state.includeForks?repos:repos.filter(r=>!r.fork);
+  state.reposCache=filtered;state.reposCacheKey=key;
+  return filtered;
+}
+async function pool(items,limit,worker){
+  let i=0;const runners=[];
+  for(let k=0;k<Math.min(limit,items.length);k++){
+    runners.push((async()=>{while(i<items.length){if(state.abort.signal.aborted)return;const idx=i++;await worker(items[idx],idx);}})());
+  }
+  await Promise.all(runners);
+}
+const HISTORY_QUERY=`query($owner:String!,$name:String!,$since:GitTimestamp!,$until:GitTimestamp,$author:CommitAuthor!,$after:String){
+  repository(owner:$owner,name:$name){
+    defaultBranchRef{ target{ ... on Commit{
+      history(since:$since,until:$until,author:$author,first:100,after:$after){
+        totalCount pageInfo{ hasNextPage endCursor }
+        edges{ node{ committedDate } }
+      }
+    } } }
+  }
+}`;
+async function repoCommitsGraphQL(repo,since,until){
+  const days=[];let after=null;let total=0;
+  while(true){
+    const data=await gql(HISTORY_QUERY,{owner:state.org,name:repo.name,since,until,author:{id:state.authorId},after});
+    const repoData=data&&data.repository;
+    const h=repoData&&repoData.defaultBranchRef&&repoData.defaultBranchRef.target&&repoData.defaultBranchRef.target.history;
+    if(!h)return{days:[],total:0};
+    if(h.totalCount)total=h.totalCount;
+    if(h.edges)for(const e of h.edges)days.push(e.node.committedDate.slice(0,10));
+    if(!h.pageInfo.hasNextPage)break;
+    after=h.pageInfo.endCursor;
+  }
+  return{days,total};
+}
+async function repoCommitsREST(repo,since,until){
+  const params={since,until};
+  if(state.authorLogin)params.author=state.authorLogin;
+  const commits=await restPages("/repos/"+encodeURIComponent(state.org)+"/"+encodeURIComponent(repo.name)+"/commits",
+    params,40);
+  const days=commits.map(c=>{
+    if(!c.commit)return null;
+    const d=c.commit.author&&c.commit.author.date;
+    return d?d.slice(0,10):null;
+  });
+  return{days,total:commits.length};
+}
+
+function windowFor(year){return{since:year+"-01-01T00:00:00Z",until:year+"-12-31T23:59:59Z"};}
+function progress(done,total,label){el.fill.style.width=(total?Math.round(done/total*100):0)+"%";el.progressText.textContent=label+" ("+done+"/"+total+")";}
+
+async function buildMap(){
+  if(state.busy)return;
+  state.org=(el.org.value||"").trim()||"RXSWDevelopment";
+  state.includeForks=el.forks.checked;
+  state.token=localStorage.getItem(LS_KEY)||"";
+  if(!state.token)state.viewer=null;
+  el.publicNote.style.display=state.token?"none":"flex";
+  state.abort=new AbortController();state.busy=true;
+  el.load.disabled=true;el.cancel.hidden=false;el.progress.style.display="block";
+  const t0=Date.now();
+  try{
+    if(state.token)await loadViewer();
+    if(state.token)await resolveAuthor();
+    else{state.authorLogin=(el.author.value||"").trim();state.authorId="";}
+    progress(0,1,"Fetching repositories");
+    const repos=await fetchRepos();
+    if(!repos.length)throw new Error("No repositories visible for org "+state.org+" with this token.");
+    state.years=computeYears(repos);
+    if(!state.year||!state.years.includes(state.year))state.year=Math.max(...state.years);
+    const{since,until}=windowFor(state.year);
+    const cacheKey=[state.org,state.authorLogin,state.authorId,state.year,state.includeForks,!!state.token].join("|");
+    let agg=state.cache.get(cacheKey);
+    if(!agg){
+      const mode=state.token?"GraphQL":"REST";
+      let done=0;
+      const results=new Map();
+      await pool(repos,5,async repo=>{
+        if(state.abort.signal.aborted)return;
+        progress(done,repos.length,mode+" scan");
+        try{
+          const r=state.token?await repoCommitsGraphQL(repo,since,until):await repoCommitsREST(repo,since,until);
+          results.set(repo,r);
+        }catch(err){
+          if(state.abort.signal.aborted)return;
+          results.set(repo,{days:[],total:0,error:String(err.message||err)});
+        }
+        done++;progress(done,repos.length,mode+" scan");
+      });
+      if(state.abort.signal.aborted)throw new DOMException("Aborted","AbortError");
+      const days=new Map(),perRepo=new Map();const errors=[];
+      for(const repo of repos){
+        const r=results.get(repo);if(!r)continue;
+        if(r.error)errors.push(repo.name+": "+r.error);
+        for(const d of r.days)if(d)days.set(d,(days.get(d)||0)+1);
+        if(r.days.length)perRepo.set(repo,r.days.length);
+      }
+      agg={days,perRepo,errors};state.cache.set(cacheKey,agg);
+    }
+    state.days=agg.days;state.perRepo=agg.perRepo;state.repos=repos;
+    render(t0);
+    if(agg.errors&&agg.errors.length)setStatus(agg.errors.length+" repositories could not be read with this token. First: "+agg.errors[0],"err");
+    else setStatus("");
+  }catch(err){
+    state.days=null;state.perRepo=null;
+    if(err.name==="AbortError")setStatus("Stopped.","ok");
+    else setStatus(err.message||String(err),"err");
+    el.headline.textContent="No data";
+  }finally{
+    state.busy=false;el.load.disabled=false;el.cancel.hidden=true;el.progress.style.display="none";
+    refreshWho();
+  }
+}
+
+function computeYears(repos){
+  const now=new Date();const cur=now.getUTCFullYear();
+  let min=cur;
+  for(const r of repos){
+    for(const ts of[r.pushedAt,r.createdAt]){
+      if(ts){const y=Number(ts.slice(0,4));if(y>=2008&&y<min)min=y;}
+    }
+  }
+  const years=[];for(let y=min;y<=cur;y++)years.push(y);
+  return years.reverse();
+}
+
+function bucket(c,max){if(!c)return 0;if(max<=4)return Math.min(4,c);return Math.min(4,Math.ceil(Math.sqrt(c/max)*4));}
+const LEVELS=["#161b22","#0e4429","#006d32","#26a641","#39d353"];
+const MONTHS=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const WD=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+function render(t0){
+  const year=state.year;
+  let total=0;for(const v of state.days.values())total+=v;
+  let scope="";
+  if(!state.token)scope=state.authorLogin?" · public repos only":" · public repos, all authors";
+  el.headline.textContent=fmt(total)+" commits in "+year+" across "+state.perRepo.size+(state.perRepo.size===1?" repository":" repositories")+scope;
+  if(state.token)document.title=fmt(total)+" commits ("+year+") · RXSW Coding Map";
+  renderYearTabs();
+  renderGraph();
+  renderMonths();
+  renderStats();
+  renderContrib();
+  renderRepoTable();
+  el.genNote.textContent=(state.token?"GraphQL · ":"public REST · ")+((Date.now()-t0)/1000).toFixed(1)+" s";
+}
+
+function renderYearTabs(){
+  el.yearTabs.innerHTML="";
+  for(const y of state.years){
+    const b=document.createElement("button");
+    b.type="button";b.className="tab"+(y===state.year?" active":"");b.textContent=y;
+    b.addEventListener("click",()=>{state.year=y;buildMap();});
+    el.yearTabs.appendChild(b);
+  }
+}
+
+function renderGraph(){
+  const year=state.year,days=state.days;
+  const start=Date.UTC(year,0,1),end=Date.UTC(year,11,31);
+  const gridStart=start-(new Date(start).getUTCDay())*86400000;
+  const weeks=Math.ceil((end-gridStart+1)/604800000);
+  const pitch=14,lp=34,tp=18;
+  const w=lp+weeks*pitch,h=tp+7*pitch+4;
+  const NS="http://www.w3.org/2000/svg";
+  const svg=document.createElementNS(NS,"svg");
+  svg.setAttribute("width",w);svg.setAttribute("height",h);
+  svg.setAttribute("viewBox","0 0 "+w+" "+h);
+  const max=Math.max(1,...days.values());
+  const startD=new Date(start);
+  let prevM=-1;
+  for(let wI=0;wI<weeks;wI++){
+    const sunDate=new Date(gridStart+wI*604800000);
+    const eff=sunDate<startD?startD:sunDate;
+    const m=eff.getUTCMonth();
+    if(m!==prevM){
+      const t=document.createElementNS(NS,"text");
+      t.setAttribute("x",lp+wI*pitch);t.setAttribute("y",11);
+      t.setAttribute("fill","#7d8590");t.setAttribute("font-size","10");
+      t.textContent=MONTHS[m];svg.appendChild(t);
+      prevM=m;
+    }
+    for(let dI=0;dI<7;dI++){
+      const ts=gridStart+wI*604800000+dI*86400000;
+      if(ts<start||ts>end)continue;
+      const d=new Date(ts);
+      const iso=d.toISOString().slice(0,10);
+      const c=days.get(iso)||0;
+      const r=document.createElementNS(NS,"rect");
+      r.setAttribute("x",lp+wI*pitch);r.setAttribute("y",tp+dI*pitch);
+      r.setAttribute("width",11);r.setAttribute("height",11);r.setAttribute("rx",2);
+      r.setAttribute("fill",LEVELS[bucket(c,max)]);
+      r.setAttribute("tabindex","0");
+      r.dataset.date=iso;r.dataset.count=String(c);
+      r.addEventListener("mouseenter",showTip);
+      r.addEventListener("mouseleave",hideTip);
+      r.addEventListener("focus",showTip);
+      r.addEventListener("blur",hideTip);
+      svg.appendChild(r);
+    }
+  }
+  for(const pair of[[1,"Mon"],[3,"Wed"],[5,"Fri"]]){
+    const dI=pair[0],label=pair[1];
+    const t=document.createElementNS(NS,"text");
+    t.setAttribute("x",0);t.setAttribute("y",tp+dI*pitch+9);
+    t.setAttribute("fill","#7d8590");t.setAttribute("font-size","10");
+    t.textContent=label;svg.appendChild(t);
+  }
+  const wrap=document.createElement("div");wrap.style.width=w+"px";wrap.appendChild(svg);
+  el.graph.innerHTML="";el.graph.appendChild(wrap);
+}
+
+function showTip(e){
+  const t=e.currentTarget;
+  const c=Number(t.dataset.count);
+  const d=new Date(t.dataset.date+"T00:00:00Z");
+  el.tooltip.textContent=c+(c===1?" commit":" commits")+" on "+WD[d.getUTCDay()]+", "+MONTHS[d.getUTCMonth()]+" "+d.getUTCDate();
+  el.tooltip.style.display="block";
+  const r=t.getBoundingClientRect();
+  let x=r.left,y=r.top-44;
+  const tw=el.tooltip.offsetWidth;
+  if(x+tw>window.innerWidth-8)x=window.innerWidth-tw-8;
+  if(y<8)y=r.bottom+8;
+  el.tooltip.style.left=x+"px";el.tooltip.style.top=y+"px";
+}
+function hideTip(){el.tooltip.style.display="none";}
+
+function renderMonths(){
+  const year=state.year;el.months.innerHTML="";
+  const totals=new Array(12).fill(0);
+  for(const entry of state.days){const m=Number(entry[0].slice(5,7))-1;totals[m]+=entry[1];}
+  const max=Math.max(1,...totals);
+  for(let m=0;m<12;m++){
+    const div=document.createElement("div");div.className="month";
+    const bar=document.createElement("div");bar.className="b";
+    bar.style.height=(totals[m]?Math.max(4,totals[m]/max*56):0)+"px";
+    bar.title=totals[m]+" commits in "+MONTHS[m]+" "+year;
+    const lab=document.createElement("div");lab.className="lb";lab.textContent=MONTHS[m];
+    div.appendChild(bar);div.appendChild(lab);el.months.appendChild(div);
+  }
+}
+function streaks(){
+  const dates=[...state.days.keys()].filter(d=>d.slice(0,4)===String(state.year)).sort();
+  if(!dates.length)return{longest:0,current:0};
+  let longest=1,run=1;
+  for(let i=1;i<dates.length;i++){
+    run=(Date.parse(dates[i])-Date.parse(dates[i-1]))===86400000?run+1:1;
+    if(run>longest)longest=run;
+  }
+  const today=new Date().toISOString().slice(0,10);
+  const last=dates[dates.length-1];
+  let current=0;
+  if(dates.includes(today))current=1;
+  else if(last!==today&&Date.parse(today)-Date.parse(last)>86400000)return{longest,current:0};
+  else current=1;
+  let i=dates.indexOf(dates.includes(today)?today:last);
+  while(i>0&&Date.parse(dates[i])-Date.parse(dates[i-1])===86400000){current++;i--;}
+  return{longest,current};
+}
+function renderStats(){
+  const year=state.year;
+  let total=0,max=0,maxDay=null;
+  for(const entry of state.days){const c=entry[1];total+=c;if(c>max){max=c;maxDay=entry[0];}}
+  const spanDays=Math.round((Date.parse(year+"-12-31")-Date.parse(year+"-01-01"))/86400000)+1;
+  const isPast=Date.parse(year+"-12-31T23:59:59Z")<Date.now();
+  const elapsed=isPast?spanDays:Math.max(1,Math.min(spanDays,Math.floor((Date.now()-Date.parse(year+"-01-01T00:00:00Z"))/86400000)+1));
+  const activeDays=state.days.size;
+  const s=streaks();
+  const monthTotals=new Array(12).fill(0);
+  for(const entry of state.days)monthTotals[Number(entry[0].slice(5,7))-1]+=entry[1];
+  const busiestMonth=total?MONTHS[monthTotals.indexOf(Math.max(...monthTotals))]+" ("+fmt(Math.max(...monthTotals))+")":"–";
+  const cells=[
+    ["Commits",fmt(total)],
+    ["Active days",activeDays+" of "+elapsed],
+    ["Daily average",total?(total/elapsed).toFixed(1):"0"],
+    ["Longest streak",s.longest+(s.longest===1?" day":" days")],
+    ["Current streak",s.current+(s.current===1?" day":" days")],
+    ["Busiest day",maxDay?MONTHS[Number(maxDay.slice(5,7))-1]+" "+Number(maxDay.slice(8,10))+" ("+fmt(max)+")":"–"],
+    ["Busiest month",busiestMonth],
+    ["Repositories",state.perRepo.size]
+  ];
+  el.stats.innerHTML="";
+  for(const pair of cells){
+    const d=document.createElement("div");d.className="stat";
+    const v=document.createElement("div");v.className="v";v.textContent=pair[1];
+    const k=document.createElement("div");k.className="k";k.textContent=pair[0];
+    d.appendChild(v);d.appendChild(k);
+    el.stats.appendChild(d);
+  }
+}
+function renderContrib(){
+  const top=[...state.perRepo.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
+  el.contrib.innerHTML="";
+  if(!top.length){
+    const msg=document.createElement("div");msg.className="muted topline";
+    msg.textContent=state.authorLogin?("No commits by @"+state.authorLogin+" in "+state.year+"."):("No commits in "+state.year+".");
+    el.contrib.appendChild(msg);
+    return;
+  }
+  const p=document.createElement("p");p.style.margin="14px 0 0";p.textContent="Contributed to ";
+  top.forEach((entry,i)=>{
+    if(i)p.append(", ");
+    const repo=entry[0],cnt=entry[1];
+    const a=document.createElement("a");
+    a.href=repo.url;a.target="_blank";a.rel="noopener";
+    a.textContent=state.org+"/"+repo.name+" ("+fmt(cnt)+")";
+    p.appendChild(a);
+  });
+  el.contrib.appendChild(p);
+}
+function renderRepoTable(){
+  const rows=[...state.perRepo.entries()].sort((a,b)=>b[1]-a[1]);
+  el.repoRows.innerHTML="";
+  el.repoCount.textContent=rows.length+" with commits"+(state.repos.length?" · "+state.repos.length+" total repos":"");
+  const max=rows.length?rows[0][1]:1;
+  for(const entry of rows){
+    const repo=entry[0],cnt=entry[1];
+    const tr=document.createElement("tr");
+    const td1=document.createElement("td");
+    const a=document.createElement("a");a.href=repo.url;a.target="_blank";a.rel="noopener";a.textContent=repo.name;
+    td1.appendChild(a);
+    if(repo.fork){const t=document.createElement("span");t.className="tag";t.textContent="fork";td1.appendChild(t);}
+    if(repo.archived){const t=document.createElement("span");t.className="tag";t.textContent="archived";td1.appendChild(t);}
+    const td2=document.createElement("td");td2.textContent=fmt(cnt);
+    const td3=document.createElement("td");
+    const bar=document.createElement("div");bar.className="bar";bar.style.width=Math.max(2,Math.round(cnt/max*100))+"%";
+    td3.appendChild(bar);
+    tr.appendChild(td1);tr.appendChild(td2);tr.appendChild(td3);
+    el.repoRows.appendChild(tr);
+  }
+}
+
+function refreshWho(){
+  if(state.viewer&&state.token){
+    el.whoRow.style.display="flex";
+    el.whoAvatar.src=(state.viewer.avatar_url||"")+"&s=44";
+    el.whoText.textContent="Token of @"+state.viewer.login+(state.authorLogin?" · measuring @"+state.authorLogin:"");
+  }else{
+    el.whoRow.style.display="none";
+  }
+}
+
+el.saveToken.addEventListener("click",()=>{
+  const v=el.token.value.trim();
+  if(v){
+    localStorage.setItem(LS_KEY,v);
+    setStatus("Token saved. It stays in this browser (localStorage).","ok");
+  }else{
+    setStatus("Paste a token first.","err");
+    return;
+  }
+  state.cache.clear();state.reposCacheKey="";state.reposCache=null;state.year=null;
+  buildMap();
+});
+$("#forget").addEventListener("click",()=>{
+  localStorage.removeItem(LS_KEY);
+  state.token="";state.viewer=null;state.cache.clear();state.reposCache=null;state.reposCacheKey="";state.year=null;
+  el.publicNote.style.display="flex";
+  refreshWho();
+  setStatus("Token removed from this browser.","ok");
+});
+el.forks.addEventListener("change",()=>{state.cache.clear();state.year=null;buildMap();});
+el.author.addEventListener("change",()=>{state.cache.clear();buildMap();});
+el.cancel.addEventListener("click",()=>{if(state.abort)state.abort.abort();});
+el.load.addEventListener("click",buildMap);
+el.exportBtn.addEventListener("click",()=>{
+  if(!state.days){setStatus("Build the map first.","err");return;}
+  const payload={org:state.org,author:state.authorLogin||state.author,year:state.year,generatedAt:new Date().toISOString(),
+    totalCommits:[...state.days.values()].reduce((a,b)=>a+b,0),
+    days:[...state.days.entries()].sort().map(pair=>({date:pair[0],commits:pair[1]})),
+    repositories:[...state.perRepo.entries()].sort((a,b)=>b[1]-a[1]).map(pair=>({name:pair[0].name,commits:pair[1]}))};
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);
+  a.download="rxsw-coding-map-"+state.year+".json";a.click();URL.revokeObjectURL(a.href);
+});
+
+(function init(){
+  el.org.value="RXSWDevelopment";
+  const params=new URLSearchParams(location.search);
+  if(params.get("org"))el.org.value=params.get("org");
+  state.token=localStorage.getItem(LS_KEY)||"";
+  el.publicNote.style.display=state.token?"none":"flex";
+  el.yearTabs.innerHTML="<span class='muted sub'>Enter a token for private repos, or press Build map for public data.</span>";
+  buildMap();
+})();
+</script>
+</body>
+</html>

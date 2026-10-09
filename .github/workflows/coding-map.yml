@@ -1,0 +1,34 @@
+name: Coding map
+on:
+  schedule:
+    - cron: "30 5 * * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: coding-map
+  cancel-in-progress: true
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Render maps
+        run: node coding-map/render.mjs
+        env:
+          CODING_MAP_TOKEN: ${{ secrets.CODING_MAP_TOKEN }}
+          MAP_ORG: RXSWDevelopment
+      - name: Commit
+        run: |
+          git config user.name "coding-map-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add profile README.md
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "Update coding map"
+            git push
+          fi
